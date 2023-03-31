@@ -1,0 +1,29 @@
+--4.É importante realizar verificações de regras de negócio no momento em 
+--que dados são alterados ou inseridos. Desta forma, desenvolva um trigger
+--que verifique, no momento em que uma cirurgia for inserida, se a data da 
+--cirurgia seja igual ou antes da data corrente. Se ela for maior, o trigger
+--não pode deixar que a cirurgia seja inserida. (deverá ser criado um arquivo
+--e postado no Github)
+
+create or replace function f_verifica_data ()
+returns trigger AS
+$$
+Begin
+if (current_date < new.data) then
+raise 'Data da cirurgia invalida!' using ERRCODE = 'ERR01';
+end if;
+return new;
+end;
+$$
+language plpgsql;
+
+create trigger trg_verifica_data
+before insert or update on cirurgia for each row
+execute procedure f_verifica_data();
+
+
+insert into cirurgia values ('2','c5','28/04/2050','Vasectomia','1');
+insert into cirurgia values ('5','c6','28/04/2003','plastica','2');
+
+
+
