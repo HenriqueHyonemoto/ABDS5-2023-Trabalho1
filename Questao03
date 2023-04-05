@@ -4,20 +4,21 @@
 --você colocou as datas 01/01/2003 a 31/12/2006, vai retornar Paulo 1; Marcos 1.
 --(deverá ser criado um arquivo e postado no Github)
  
-create or replace function f_MedicoAtdQtd (data_ini DATE, data_fim) returns setof record 
+create or replace function f_MedicoAtdQtd (data_ini DATE, data_fim DATE) returns setof record 
 as $$
 declare regqtd record;
 begin 
+for regqtd in 
 select medico.nome, count(id_atende) as "quantidade" 
-from medico outer join atende 
-on medidco.id_medico = atende.id_medico
+from medico left join atende 
+on medico.id_medico = atende.id_medico
 where atende.data between data_ini and data_fim 
 group by medico.nome
-if not found then
-raise 'Não foi encontrado nenhum medico com as datas %',datapar using ERRCODE = 'ERR01';
-end if
-return regqtd;
-end
+loop
+return next regqtd;
+end loop;
+return;
+end;
 $$ language plpgsql;
 
-select * from f_MedigoAtdQtd('01/01/2003','31/12/2006') as (medico.nome varchar, quantidade integer);
+select * from f_MedicoAtdQtd('2003/01/01','2006/12/31') as (nome_medico varchar, quantidade bigint);
