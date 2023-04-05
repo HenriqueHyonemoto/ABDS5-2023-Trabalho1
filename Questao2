@@ -1,0 +1,28 @@
+--Etapa 2
+CREATE OR REPLACE FUNCTION f_CriaCirurgia3(codigo_cirurgiapar varchar,codigo_pacientepar varchar,datapar date, descricaopar varchar) 
+RETURNS void
+AS $$
+declare
+    id_pacientelocal integer;
+BEGIN
+    SELECT id_paciente into id_pacientelocal FROM paciente WHERE codigo_pacientepar = codigo; 
+    IF NOT FOUND THEN 
+        RAISE 'Esse paciente não existe' USING ERRCODE = 'ERR01';
+    ELSE 
+        INSERT INTO cirurgia 
+		VALUES (nextval('sid_cirurgia'),codigo_cirurgiapar,datapar,descricaopar,id_pacientelocal);
+    END if;
+    RETURN;
+end;
+$$ 
+LANGUAGE plpgsql;
+
+
+select * from cirurgia;
+
+--existe
+select * from f_CriaCirurgia3('c5','p1','04/04/2004','Cirurgia2');
+select * from f_CriaCirurgia3('c6','p2','06/06/2006','Cirurgia6');
+
+--não existe
+select * from f_CriaCirurgia3('c6','p57','06/06/2006','Cirurgia6');
